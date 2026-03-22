@@ -30,6 +30,29 @@ let dst = tier1::gaussian_blur(&device, &src, None, 1.0, 1.0, 0.0).unwrap();
 let result: Vec<f32> = pull(&dst).unwrap();
 ```
 
+## Benchmarks
+
+Measured on Apple Silicon (Intel GPU, macOS 15.7, OpenCL). Both implementations synchronize the GPU after each operation (`clFinish`). clic-rs benefits from an in-memory LRU kernel program cache, avoiding recompilation on repeated calls.
+
+| Operation | Image size | CLIc (C++) | clic-rs (Rust) |
+|-----------|------------|------------|----------------|
+| `gaussian_blur` | 64×64 | 3768 µs | 1293 µs |
+| `gaussian_blur` | 256×256 | 3321 µs | 1579 µs |
+| `gaussian_blur` | 512×512 | 5272 µs | 2833 µs |
+| `add_images_weighted` | 64×64 | 1232 µs | 783 µs |
+| `add_images_weighted` | 256×256 | 1200 µs | 952 µs |
+| `add_images_weighted` | 512×512 | 1456 µs | 1386 µs |
+| `mean_of_all_pixels` | 64×64 | 3939 µs | 1116 µs |
+| `mean_of_all_pixels` | 256×256 | 2561 µs | 1272 µs |
+| `mean_of_all_pixels` | 512×512 | 3505 µs | 1544 µs |
+
+Run benchmarks:
+
+```bash
+bash benchmark/run.sh          # compare C++ CLIc vs clic-rs side by side
+cargo bench --bench gpu        # Rust only (Criterion HTML report)
+```
+
 ## Building
 
 Requires an OpenCL runtime (e.g. from your GPU driver or [PoCL](https://portablecl.org) for CPU fallback).

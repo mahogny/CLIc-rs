@@ -195,7 +195,6 @@ impl Backend for OpenCLBackend {
                 .enqueue_copy_buffer(&*src_guard, &mut *dst_guard, 0, 0, byte_size, &[])
                 .map_err(|e| CleError::OpenCL(format!("{:?}", e)))?
         };
-        let _ = ocl.queue.finish();
         Ok(())
     }
 
@@ -324,7 +323,6 @@ impl Backend for OpenCLBackend {
                 .map_err(|e| CleError::OpenCL(format!("enqueue_nd_range_kernel '{}' failed: {:?}", kernel_name, e)))?
         };
 
-        let _ = ocl.queue.finish();
         Ok(())
     }
 }

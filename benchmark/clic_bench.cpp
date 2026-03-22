@@ -29,7 +29,11 @@ using us_t    = std::chrono::duration<double, std::micro>;
 static cle::Device::Pointer get_device()
 {
     cle::BackendManager::getInstance().setBackend("opencl");
-    return cle::BackendManager::getInstance().getBackend().getDevice("", "all");
+    auto dev = cle::BackendManager::getInstance().getBackend().getDevice("", "all");
+    // Enable blocking finish() — by default waitFinish=false so finish() is a no-op.
+    // Without this, benchmarks measure only kernel submission, not GPU execution.
+    dev->setWaitToFinish(true);
+    return dev;
 }
 
 static std::vector<float> make_data(size_t n) { return std::vector<float>(n, 1.0f); }
